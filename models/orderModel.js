@@ -42,35 +42,46 @@ async function getMyOrders(user_id) {
 // Admin: all orders
 async function getAllOrders() {
 
-    const result = await pool.query(
-        `SELECT *
-         FROM orders
-         ORDER BY created_at DESC`
-    );
+    const result = await pool.query(`
+        SELECT
+            orders.id,
+            users.full_name,
+            users.email,
+            orders.total_price,
+            orders.payment_status,
+            orders.status,
+            orders.created_at
+        FROM orders
+        JOIN users
+        ON orders.user_id = users.id
+        ORDER BY orders.id DESC
+    `);
 
     return result.rows;
-
 }
-
-// Update order status
-async function updateOrderStatus(order_id, status) {
+async function updateOrder(id, payment_status, status) {
 
     const result = await pool.query(
         `UPDATE orders
-         SET status = $1
-         WHERE id = $2
+         SET payment_status = $1,
+             status = $2
+         WHERE id = $3
          RETURNING *`,
-        [status, order_id]
+        [payment_status, status, id]
     );
 
     return result.rows[0];
-
 }
+
+
+// Update order status
+
 
 module.exports = {
     createOrder,
     addOrderItem,
     getMyOrders,
     getAllOrders,
-    updateOrderStatus
+    updateOrder
+    
 };

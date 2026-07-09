@@ -119,14 +119,16 @@ async function updateOrderStatus(req, res) {
 
     try {
 
-        const { id } = req.params;
-        const { status } = req.body;
+        const { payment_status, status } = req.body;
 
-        const order = await orderModel.updateOrderStatus(id, status);
+        const order = await orderModel.updateOrder(
+            req.params.id,
+            payment_status,
+            status
+        );
 
         res.json({
             success: true,
-            message: "Order status updated.",
             order
         });
 
@@ -136,7 +138,7 @@ async function updateOrderStatus(req, res) {
 
         res.status(500).json({
             success: false,
-            message: error.message
+            message: "Server error."
         });
 
     }
